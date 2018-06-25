@@ -40,13 +40,15 @@ io.on('connection', (socket) => {
       console.log('createEmail', newEmail);
   })
 
-  socket.on('createMessage', (newMessage) => {
-    //   io.emit('newMessage', {
-    //     from: newMessage.from,
-    //     message: newMessage.message,
-    //     createdAt: new Date().getTime()
-    //   })
-    socket.broadcast.emit('newMessage', generateMessage(newMessage.from, newMessage.message))
+  socket.on('createMessage', (newMessage, callback) => {
+    console.log('createMessage', newMessage);  
+      io.emit('newMessage', {
+        from: newMessage.from,
+        text: newMessage.text,
+        createdAt: new Date().getTime()
+      });
+    //socket.broadcast.emit('newMessage', generateMessage(newMessage.from, newMessage.message))
+    callback('From the server');
   })
 
   socket.on('disconnect', () => {
