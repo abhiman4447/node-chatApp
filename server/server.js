@@ -48,7 +48,7 @@ io.on('connection', (socket) => {
         createdAt: new Date().getTime()
       });
     //socket.broadcast.emit('newMessage', generateMessage(newMessage.from, newMessage.message))
-    callback('From the server');
+    callback();
   })
 
   socket.on('createLocation', (coords) => {
