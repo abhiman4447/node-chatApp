@@ -66,18 +66,26 @@ io.on('connection', (socket) => {
   })
 
   socket.on('createMessage', (newMessage, callback) => {
-    console.log('createMessage', newMessage);  
-      io.emit('newMessage', {
-        from: newMessage.from,
-        text: newMessage.text,
-        createdAt: new Date().getTime()
-      });
+      var user = users.getUser(socket.id);
+
+      if (user && isRealString(newMessage.text)) {
+        io.to(user.room).emit('newMessage', {
+          from: user.name,
+          text: newMessage.text,
+          createdAt: new Date().getTime()
+        }); 
+      }
+      
     //socket.broadcast.emit('newMessage', generateMessage(newMessage.from, newMessage.message))
     callback();
   })
 
   socket.on('createLocation', (coords) => {
-    io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude))
+    var user = users.getUser(socket.id);
+
+    if(user) { 
+     io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
+    }
   })
 
   socket.on('disconnect', () => {
