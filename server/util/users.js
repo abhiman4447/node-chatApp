@@ -12,6 +12,8 @@ class Users {
   }
 
   addUser (id, name, room) {
+      var room = room.toLowerCase();
+      console.log(room);
       var user = {id, name, room};
       this.users.push(user);
       return user;
@@ -36,6 +38,12 @@ class Users {
    var namesArray = users.map((user) => user.name);
 
    return namesArray;
+  }
+
+  checkIfUserExists (name) {
+   var users = this.users;
+   var filteredUsers = users.filter((user) => user.name === name);
+   return filteredUsers.length;
   }
 
 }

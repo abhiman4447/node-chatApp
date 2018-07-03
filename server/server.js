@@ -40,11 +40,19 @@ io.on('connection', (socket) => {
     return callback('Name and room name are required.');
    }
 
-   socket.join(params.room);
-   users.removeUser(socket.id);
-   users.addUser(socket.id, params.name, params.room);
+   var count = users.checkIfUserExists(params.name);
+   console.log('count', count);
+   if (count >= 1) {
+    return callback('User already exists.');
+   }
 
-   io.to(params.room).emit('updateUserList', users.getUserList(params.room));
+   socket.join(params.room.toLowerCase());
+   users.removeUser(socket.id);
+
+   
+
+   users.addUser(socket.id, params.name, params.room);
+   io.to(params.room.toLowerCase()).emit('updateUserList', users.getUserList(params.room.toLowerCase()));
 
 
    //socket.leave('room name');
@@ -53,10 +61,8 @@ io.on('connection', (socket) => {
    //io.broadcast.emit() => io.broadcast.to('room name').emit();
    //socket.emit()
 
-   socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app!'))
-
-   socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined`))
-
+   socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app!'));
+   socket.broadcast.to(params.room.toLowerCase()).emit('newMessage', generateMessage('Admin', `${params.name} has joined`));
 
    callback();
   })
@@ -69,7 +75,7 @@ io.on('connection', (socket) => {
       var user = users.getUser(socket.id);
 
       if (user && isRealString(newMessage.text)) {
-        io.to(user.room).emit('newMessage', {
+        io.to(user.room.toLowerCase()).emit('newMessage', {
           from: user.name,
           text: newMessage.text,
           createdAt: new Date().getTime()
@@ -83,8 +89,8 @@ io.on('connection', (socket) => {
   socket.on('createLocation', (coords) => {
     var user = users.getUser(socket.id);
 
-    if(user) { 
-     io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
+    if (user) {
+     io.to(user.room.toLowerCase()).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
     }
   })
 
@@ -94,8 +100,8 @@ io.on('connection', (socket) => {
     var user = users.removeUser(socket.id);
 
     if (user) {
-      io.to(user.room).emit('updateUserList', users.getUserList(user.room));
-      io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left`));
+      io.to(user.room.toLowerCase()).emit('updateUserList', users.getUserList(user.room));
+      io.to(user.room.toLowerCase()).emit('newMessage', generateMessage('Admin', `${user.name} has left`));
     }
   })
 
